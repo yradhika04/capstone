@@ -10,7 +10,7 @@ Since : 2017-07
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
-from pandas.tools import plotting
+from pandas import plotting
 import matplotlib.pyplot as plt
 import math
 import os
