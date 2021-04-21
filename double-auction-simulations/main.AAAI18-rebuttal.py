@@ -150,9 +150,9 @@ def plotResults(resultsFilename=None, xColumn='Min total traders', numOfBins=10,
 	results = results[results['Optimal gain']>0]
 	print(len(results), " auctions with positive optimal gain")
 	
-	for field in ['MUDA-lottery', 'MUDA-Vickrey traders', 'MUDA-Vickrey total']:
+	for field in ['MIDA-lottery', 'MIDA-Vickrey traders', 'MIDA-Vickrey total']:
 		results[field+' ratio'] = results[field+' gain'] / results['Optimal gain']
-		
+
 	if numOfBins:
 		results_bins = results.groupby(pd.cut(results[xColumn],numOfBins)).mean()
 	else:
@@ -160,11 +160,11 @@ def plotResults(resultsFilename=None, xColumn='Min total traders', numOfBins=10,
 		
 	results_bins.to_csv(resultsFilename+".bins")
 	
-	results_bins.plot(x=xColumn, y='MUDA-Vickrey total ratio', style=['b^-'], ax=ax, markersize=markerSize)
-	results_bins.plot(x=xColumn, y='MUDA-Vickrey traders ratio', style=['gv-'], ax=ax, markersize=markerSize)
-	results_bins.plot(x=xColumn, y='MUDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
+	results_bins.plot(x=xColumn, y='MIDA-Vickrey total ratio', style=['b^-'], ax=ax, markersize=markerSize)
+	results_bins.plot(x=xColumn, y='MIDA-Vickrey traders ratio', style=['gv-'], ax=ax, markersize=markerSize)
+	results_bins.plot(x=xColumn, y='MIDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
 
-	#plt.legend(loc=0,prop={'size':legendFontSize})
+	plt.legend(loc=0,prop={'size':legendFontSize})
 	ax.legend_.remove()
 	ax.set_title(title, fontsize= titleFontSize, weight='bold')
 	ax.set_ylabel(YLABEL, fontsize= axesFontSize)
@@ -184,12 +184,12 @@ def torqSimulation():
 	if createResults:
 		torqSimulateBySymbol(filename, combineByOrderDate=True, agentNums=numOfTraderss)
 		torqSimulateBySymbol(filename, combineByOrderDate=False, agentNums=numOfTraderss)
-		#torqSimulateBySymbol(filename+"-NORM", combineByOrderDate=False, agentNums=numOfTraderss)
-		#torqSimulateBySymbol(filename+"-NORM", combineByOrderDate=True, agentNums=numOfTraderss)
-	#plotTorq(filename=filename, combineByOrderDate=False, agentNums=numOfTraderss, numOfBins=numOfBins)
-	# plotTorq(filename=filename, combineByOrderDate=True, agentNums=numOfTraderss, numOfBins=numOfBins,
-	# 		ax = plt.subplot(1,1,1), title="Auctions based on TORQ database", xColumn="Optimal units")
-	# plt.xlabel('Optimal #units (k)')
+		torqSimulateBySymbol(filename+"-NORM", combineByOrderDate=False, agentNums=numOfTraderss)
+		torqSimulateBySymbol(filename+"-NORM", combineByOrderDate=True, agentNums=numOfTraderss)
+	plotTorq(filename=filename, combineByOrderDate=False, agentNums=numOfTraderss, numOfBins=numOfBins)
+	plotTorq(filename=filename, combineByOrderDate=True, agentNums=numOfTraderss, numOfBins=numOfBins,
+			ax = plt.subplot(1,1,1), title="Auctions based on TORQ database", xColumn="Optimal units")
+	plt.xlabel('Optimal #units (k)')
 	ax = plt.subplot(1,2,2)
 	plotTorq(filename=filename, combineByOrderDate=True, agentNums=numOfTraderss, numOfBins=numOfBins, 
 			ax=ax, title="TORQ; combined", xColumn="Total traders")
@@ -217,10 +217,13 @@ def torqSimulation():
 	# 		ax = plt.subplot(2,1,2))
 	# plt.show()
 
-def randomSimulation(numOfAuctions = 100):
-	numOfTraderss = range(2000000, 42000000, 2000000) #range(200,4200,200) # 
-	minNumOfUnitsPerTrader = 1 # 10
-	maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10000000,100000000,10]
+def randomSimulation(numOfAuctions = 10):
+	# numOfTraderss = range(2000000, 42000000, 2000000) #range(200,4200,200) # 
+	numOfTraderss = range(200,1000,200) 
+	# minNumOfUnitsPerTrader = 1 # 10
+	minNumOfUnitsPerTrader = 10
+	# maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10000000,100000000,10]
+	maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10]
 	meanValue = 500
 	maxNoiseSizes = [50,100,150,200,300,350,400,450,500,250]
 	numOfBins = 20
@@ -239,12 +242,12 @@ def randomSimulation(numOfAuctions = 100):
 		keyColumns=("numOfTraders","minNumOfUnitsPerTrader","maxNumOfUnitsPerTrader","maxNoiseSize")
 
 		### non-additive
-		simulateAuctions(randomAuctions(     ### as function of #traders
-			numOfAuctions, numOfTraderss, minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[-1:], meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=True),
-			filenameTraders, keyColumns=keyColumns)
-		simulateAuctions(randomAuctions(     ### as function of m - fixed total units
-			numOfAuctions, numOfTraderss[-1:], minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=True),
-			filenameUnitsFixedVirtual, keyColumns=keyColumns)
+		# simulateAuctions(randomAuctions(     ### as function of #traders
+		# 	numOfAuctions, numOfTraderss, minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[-1:], meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=True),
+		# 	filenameTraders, keyColumns=keyColumns)
+		# simulateAuctions(randomAuctions(     ### as function of m - fixed total units
+		# 	numOfAuctions, numOfTraderss[-1:], minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=True),
+		# 	filenameUnitsFixedVirtual, keyColumns=keyColumns)
 		# simulateAuctions(randomAuctions(   ### as function of m - fixed total traders - TOO LONG
 		# 	numOfAuctions, [100], minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=False),
 		# 	filenameUnitsFixedTraders, keyColumns=keyColumns)
@@ -253,19 +256,19 @@ def randomSimulation(numOfAuctions = 100):
 		# 	numOfAuctions, numOfTraderss[-1:], minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[-1:], meanValue, maxNoiseSizes, fixedNumOfVirtualTraders=True),
 		# 	filenameNoise, keyColumns=keyColumns)
 
-		### additive
+		# additive
 		# simulateAuctions(randomAuctions(  ### as function of #traders
 		# 	numOfAuctions, numOfTraderss, maxNumOfUnitsPerTraders[3], maxNumOfUnitsPerTraders[-1:], meanValue, maxNoiseSizes[-1:], fixedNumOfVirtualTraders=True),
 		# 	filenameTradersAdd, keyColumns=keyColumns)
-		# # simulateAuctions(randomAuctions(   ### as function of m - fixed total units
-		# # 	numOfAuctions, numOfTraderss[-1:], maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:],isAdditive=True, fixedNumOfVirtualTraders=True),
-		# # 	filenameUnitsAdd, keyColumns=keyColumns)
+		# simulateAuctions(randomAuctions(   ### as function of m - fixed total units
+		# 	numOfAuctions, numOfTraderss[-1:], maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:],isAdditive=True, fixedNumOfVirtualTraders=True),
+		# 	filenameUnitsAdd, keyColumns=keyColumns)
 		# simulateAuctions(randomAuctions(    ### as function of noise
 		# 	numOfAuctions, numOfTraderss[-1:],  maxNumOfUnitsPerTraders[3], maxNumOfUnitsPerTraders[-1:], meanValue, maxNoiseSizes, fixedNumOfVirtualTraders=True),
 		# 	filenameNoiseAdd, keyColumns=keyColumns)
-		# # simulateAuctions(randomAuctions(   ### as function of m - fixed total traders
-		# # 	numOfAuctions, [100], maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:], isAdditive=True, fixedNumOfVirtualTraders=False),
-		# # 	filenameUnitsFixedTraders, keyColumns=keyColumns)
+		# simulateAuctions(randomAuctions(   ### as function of m - fixed total traders
+		# 	numOfAuctions, [100], maxNumOfUnitsPerTraders, meanValue, maxNoiseSizes[-1:], isAdditive=True, fixedNumOfVirtualTraders=False),
+		# 	filenameUnitsFixedTraders, keyColumns=keyColumns)
 
 	TITLESTART = ""# "Uniform; "
 	### non-additive
@@ -273,14 +276,14 @@ def randomSimulation(numOfAuctions = 100):
 	plotResults(filenameTraders,"Total traders",numOfBins, ax, title=
 		TITLESTART+"m={},M={},noise={}".format(minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[-1],maxNoiseSizes[-1]))
 	ax.set_xlabel('Total #traders', fontsize=axesFontSize)
-	#ax.set_xlim([0,1000])
+	# ax.set_xlim([0,1000])
 
 
-	# ax=plt.subplot(1,1,1)
-	# plotResults(filenameTraders,"Optimal units",numOfBins, ax, title=
-	#	TITLESTART+"m={},M={},noise={}".format(minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
-	# plt.xlabel('Optimal #units (k)')
-	# plt.show()
+	ax=plt.subplot(1,1,1)
+	plotResults(filenameTraders,"Optimal units",numOfBins, ax, title=
+		TITLESTART+"m={},M={},noise={}".format(minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
+	plt.xlabel('Optimal #units (k)')
+	plt.show()
 
 	ax=plt.subplot(1,2,2, sharey=None)
 	plotResults(filenameUnitsFixedVirtual,"log10(M)",numOfBins=None, ax=ax, title=TITLESTART+"m={},units={},noise={}".format(minNumOfUnitsPerTrader,numOfTraderss[-1],maxNoiseSizes[-1]))
@@ -291,33 +294,33 @@ def randomSimulation(numOfAuctions = 100):
 	ax.set_ylabel("")
 	
 	plt.show()
-	# plotResults(filenameUnitsFixedTraders,"maxNumOfUnitsPerTrader",numOfBins, plt.subplot(1,1,1), 
-	# 	title="traders={}, noise={}".format(numOfTraderss[-1],maxNoiseSizes[-1]))
-	# plt.xlabel('#units per trader (M)')
-	# plt.show()
-	# plotResults(filenameNoise,"maxNoiseSize",numOfBins, plt.subplot(1,1,1), 
-	# 	title=TITLESTART+"units={},m={},M={}".format(numOfTraderss[-1],minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3]))
-	# plt.xlabel('Max noise size (A)', fontsize=axesFontSize)
-	# plt.show()
+	plotResults(filenameUnitsFixedTraders,"maxNumOfUnitsPerTrader",numOfBins, plt.subplot(1,1,1), 
+		title="traders={}, noise={}".format(numOfTraderss[-1],maxNoiseSizes[-1]))
+	plt.xlabel('#units per trader (M)')
+	plt.show()
+	plotResults(filenameNoise,"maxNoiseSize",numOfBins, plt.subplot(1,1,1), 
+		title=TITLESTART+"units={},m={},M={}".format(numOfTraderss[-1],minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3]))
+	plt.xlabel('Max noise size (A)', fontsize=axesFontSize)
+	plt.show()
 
-	### additive
-	# # plotResults(filenameTradersAdd,"numOfTraders",numOfBins, plt.subplot(1,1,1), title=TITLESTART+"m={},M={},n oise={}, additive".format(minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
-	# # plt.xlabel('total #units')
-	# plotResults(filenameTradersAdd,"Optimal units",numOfBins, plt.subplot(1,1,1),
-	# 	title=TITLESTART+"m={},M={},noise={},additive".format(minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
-	# plt.xlabel('optimal #units (k)')
-	# plt.show()
-	# 
-	# # plotResults(filenameUnitsAdd,"maxNumOfUnitsPerTrader",numOfBins, plt.subplot(1,1,1), 
-	# # 	title=TITLESTART+"traders={},noise={},additive".format(numOfTraderss[-1],maxNoiseSizes[-1]))
-	# # plt.ylabel('')
-	# plotResults(filenameNoiseAdd,"maxNoiseSize",numOfBins, plt.subplot(1,1,1), 
-	# 	title=TITLESTART+"traders={},m={},M={},additive".format(numOfTraderss[-1],minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[3]))
-	# plt.xlabel('Max noise size (A)')
-	# plt.show()
+	## additive
+	plotResults(filenameTradersAdd,"numOfTraders",numOfBins, plt.subplot(1,1,1), title=TITLESTART+"m={},M={},n oise={}, additive".format(minNumOfUnitsPerTrader,maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
+	plt.xlabel('total #units')
+	plotResults(filenameTradersAdd,"Optimal units",numOfBins, plt.subplot(1,1,1),
+		title=TITLESTART+"m={},M={},noise={},additive".format(minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[3],maxNoiseSizes[-1]))
+	plt.xlabel('optimal #units (k)')
+	plt.show()
+	
+	plotResults(filenameUnitsAdd,"maxNumOfUnitsPerTrader",numOfBins, plt.subplot(1,1,1), 
+		title=TITLESTART+"traders={},noise={},additive".format(numOfTraderss[-1],maxNoiseSizes[-1]))
+	plt.ylabel('')
+	plotResults(filenameNoiseAdd,"maxNoiseSize",numOfBins, plt.subplot(1,1,1), 
+		title=TITLESTART+"traders={},m={},M={},additive".format(numOfTraderss[-1],minNumOfUnitsPerTrader, maxNumOfUnitsPerTraders[3]))
+	plt.xlabel('Max noise size (A)')
+	plt.show()
 
 
-createResults = False # True # 
+createResults = False #True 
 
-#torqSimulation()
-randomSimulation(numOfAuctions = 10)
+torqSimulation()
+# randomSimulation(numOfAuctions = 10)

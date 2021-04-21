@@ -3,8 +3,7 @@
 """
 Simulation of single-type multi-unit double-auction mechanisms.
 
-Author: Erel Segal-Halevi
-Since : 2017-07
+
 """
 
 import numpy as np
@@ -24,7 +23,7 @@ COLUMNS=(
 	'Total buyers', 'Total sellers', 'Total traders', 'Min total traders', 'Total units',
 	'Max units per trader', 'Min units per trader', 'Normalized max units per trader', 'stddev',
 	'Optimal buyers', 'Optimal sellers', 'Optimal units',
-	'Optimal gain', 'MIDA-lottery gain', 'MIDA-Vickrey traders gain', 'MUDA-Vickrey total gain')
+	'Optimal gain', 'MUDA-lottery gain', 'MUDA-Vickrey traders gain', 'MUDA-Vickrey total gain')
 
 def replicaAuctions(replicaNums:list, auctions:list):
 	"""
@@ -92,7 +91,7 @@ def torqSimulationBySymbolDate(filename, combineByOrderDate=False, replicaNums=[
 		torq.auctionsBySymbolDate(datasetFilename, combineByOrderDate)),
 		resultsFilename, keyColumns=("symbol","date"))
 
-def torqSimulateBySymbol(filename, combineByOrderDate=False, agentNums=[100]):
+def torqSimulateBySymbol(filename, combineByOrderDate=False, agentNums=[10]):
 	"""
 	Treat all bidders for the same symbol, in ALL dates, as a distribution of values for that symbol.
 	"""
@@ -146,21 +145,19 @@ def plotResults(resultsFilename=None, xColumn='Min total traders', numOfBins=10,
 	results['Optimal market size'] = (results['Optimal buyers']+results['Optimal sellers']) / 2
 	results['Normalized market size'] = results['Optimal units'] / (results['Max units per trader'])
 	results['log10(M)'] = np.log(results['Max units per trader'])/np.log(10)
-	print(len(results), " auctions")
+	# print(len(results), " auctions")
 	results = results[results['Optimal gain']>0]
-	print(len(results), " auctions with positive optimal gain")
+	# print(len(results), " auctions with positive optimal gain")
 
-	for field in ['MIDA-lottery', 'MIDA-Vickrey traders', 'MIDA-Vickrey total']:
-		fieldNew = field.replace("MIDA","MUDA")
-		results[fieldNew+' ratio'] = results[field+' gain'] / results['Optimal gain']
+	for field in ['MUDA-lottery', 'MUDA-Vickrey traders', 'MUDA-Vickrey total']:
+		results[field+' ratio'] = results[field+' gain'] / results['Optimal gain']
 
 	if numOfBins:
 		results_bins = results.groupby(pd.cut(results[xColumn],numOfBins)).mean()
 	else:
 		results_bins = results.groupby(results[xColumn]).mean()
-
+		print(results.groupby(results[xColumn]).mean())
 	results_bins.to_csv(resultsFilename+".bins")
-
 	results_bins.plot(x=xColumn, y='MUDA-Vickrey total ratio', style=['b^-'], ax=ax, markersize=markerSize)
 	results_bins.plot(x=xColumn, y='MUDA-Vickrey traders ratio', style=['gv-'], ax=ax, markersize=markerSize)
 	results_bins.plot(x=xColumn, y='MUDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
@@ -179,7 +176,7 @@ def plotResults(resultsFilename=None, xColumn='Min total traders', numOfBins=10,
 MUDA.LOG = randomTradeWithExogeneousPrice.LOG = False
 
 def torqSimulation():
-	numOfBins = 100
+	numOfBins = 10
 	numOfTraderss=list(range(10,1000,10))*1
 	filename = "901101-910131-SOD"
 	if createResults:
@@ -199,10 +196,13 @@ def torqSimulation():
 	plt.show()
 
 
-def randomSimulation(numOfAuctions = 100):
-	numOfTraderss = range(2000000, 42000000, 2000000) #range(200,4200,200) #
-	minNumOfUnitsPerTrader = 1 # 10
-	maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10000000,100000000,10]
+def randomSimulation(numOfAuctions = 10):
+	# numOfTraderss = # range(2000000, 42000000, 2000000) # range(200,4200,200) 
+	numOfTraderss = range(200,1000,200) 
+	# minNumOfUnitsPerTrader = 1 # 10
+	minNumOfUnitsPerTrader = 10
+	# maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10000000,100000000,10]
+	maxNumOfUnitsPerTraders = [100,1000,10000,100000,1000000,10]
 	meanValue = 500
 	maxNoiseSizes = [50,100,150,200,300,350,400,450,500,250]
 	numOfBins = 20
@@ -236,7 +236,8 @@ def randomSimulation(numOfAuctions = 100):
 	ax.set_xlabel('Total #traders', fontsize=axesFontSize)
 
 	ax=plt.subplot(1,2,2, sharey=None)
-	plotResults(filenameUnitsFixedVirtual,"log10(M)",numOfBins=None, ax=ax, title=TITLESTART+"Fixed total units, M*n={}".format(numOfTraderss[-1]))
+	plotResults(filenameUnitsFixedVirtual,"log10(M)",None, ax=ax, title=
+		TITLESTART+"Fixed total units, M*n={}".format(numOfTraderss[-1]))
 	ax.set_xlim([1,8])
 	ax.set_xticklabels(["","100","1e3","1e4","1e5","1e6","1e7","1e8"])
 	ax.set_xlabel('Max #units per trader (M)', fontsize=axesFontSize)
@@ -245,7 +246,7 @@ def randomSimulation(numOfAuctions = 100):
 	plt.show()
 
 
-createResults = False # True # 
+createResults = False #True # False
 
 torqSimulation()
-#randomSimulation(numOfAuctions = 10)
+# randomSimulation(numOfAuctions = 20)

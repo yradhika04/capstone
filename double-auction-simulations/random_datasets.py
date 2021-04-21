@@ -3,8 +3,6 @@
 """
 Functions for creating random valuations for double auctions.
 
-Author: Erel Segal-Halevi
-Since : 2017-09
 """
 
 import numpy as np
@@ -77,15 +75,15 @@ def randomAuctions(numOfAuctions:int, numOfTraderss:int, minNumOfUnitsPerTrader:
 ### MAIN PROGRAM ###
 
 if __name__ == "__main__":
-	print("randomValuations demo:")
-	print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100))
-	print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True))
-	print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True, index=99))
+	# print("randomValuations demo:")
+	# print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100))
+	# print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True))
+	# print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True, index=99))
 
 	print("\nrandomAuction demo:")
-	print(randomAuction(numOfTraders=5, minNumOfUnitsPerTrader=10, maxNumOfUnitsPerTrader=30, meanValue=100, maxNoiseSize=40, fixedNumOfVirtualTraders=False))
-	print(randomAuction(500, 100, 300,   100, 40,fixedNumOfVirtualTraders=True))
-	print(randomAuction(5000, 1000, 3000, 100, 40,fixedNumOfVirtualTraders=True))
+	# print(randomAuction(numOfTraders=5, minNumOfUnitsPerTrader=10, maxNumOfUnitsPerTrader=30, meanValue=100, maxNoiseSize=40, fixedNumOfVirtualTraders=False))
+	# print(randomAuction(500, 100, 300,   100, 40,fixedNumOfVirtualTraders=True))
+	# print(randomAuction(5000, 1000, 3000, 100, 40,fixedNumOfVirtualTraders=True))
 
 	print("\nrandomAuctions demo:")
 	for auctionID,traders in randomAuctions(2, [3], 10, [20,50], 100, [20,40]):

@@ -80,6 +80,7 @@ walrasianEquilibrium.LOG=False
 
 def randomPartition(theList:list)->(list,list):
 	"""
+	For random halving, to split the market into 2
 	INPUT: one list.
 	OUTPUT: two lists. Each item in input goes to each list in output with probabaility 1/2.
 	"""
@@ -122,6 +123,7 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 	>>> randomTradeWithExogeneousPrice([b1,b2,s1,s2],201)
 	(8, 1100)
 	"""
+
 	activeBuyers =  [t.abovePrice(price) for t in traders if t.isBuyer]
 	random.shuffle(activeBuyers)
 	activeSellers = [t.belowPrice(price) for t in traders if not t.isBuyer]
@@ -152,7 +154,7 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		totalGain = buyersGain+sellersGain
 
 	return (totalUnitsTraded, totalGain)
-randomTradeWithExogeneousPrice.LOG = False
+randomTradeWithExogeneousPrice.LOG = True
 
 
 
@@ -265,13 +267,13 @@ def VickreyTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 
 	tradersGain = totalGain - managerGain
 	return (totalUnitsTraded, tradersGain, managerGain, totalGain)
-VickreyTradeWithExogeneousPrice.LOG = False
+VickreyTradeWithExogeneousPrice.LOG = True
 
 
 
 #### Implementation of mechanisms
 
-def MUDA(traders:list, Lottery=True, Vickrey=False) -> (int,float):
+def MUDA(traders:list, Lottery=False, Vickrey=True) -> (int,float):
 	"""
 	Run the Multi-Item-Double-Auction mechanism.
 	INPUT: a list of Trader objects, each of which represents valuations with decreasing marginal returns.
@@ -307,7 +309,7 @@ def MUDA(traders:list, Lottery=True, Vickrey=False) -> (int,float):
 	if MUDA.LOG:
 		print(result)
 	return result
-MUDA.LOG = False
+MUDA.LOG = True
 
 def WALRAS(traders:list) -> (int, int, int, float):
 	"""
@@ -320,35 +322,35 @@ def WALRAS(traders:list) -> (int, int, int, float):
 
 
 if __name__ == "__main__":
-	if True: # False: #
-		import doctest
-		walrasianEquilibrium.LOG=False
-		doctest.testmod()
-		print("Doctest OK!\n")
-	else:
+	# if True: # False: #
+	# 	import doctest
+	# 	walrasianEquilibrium.LOG=False
+	# 	doctest.testmod()
+	# 	print("Doctest OK!\n")
+	# else:
 		b1 = Trader.Buyer([[4,150],[3,350]])
 		b2 = Trader.Buyer([[5,250]])
 		s2 = Trader.Seller([[5,100],[3,300]])
 		s1 = Trader.Seller([[5,200]])
 
 		#walrasianEquilibrium.LOG=True
-		#print(walrasianEquilibrium([b1,b2,s1,s2]))
+		# print("Walrasian",walrasianEquilibrium([b1,b2,s1,s2]))
 
 		#randomTradeWithExogeneousPrice.LOG = True
-		#print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],51))
-		#print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],101))
-		#print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],151))
-		#print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],201))
-		#print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],225))  # demand=8 and supply=9; competition between a 100 seller and a 200 seller.
+		# print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],51))
+		# print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],101))
+		# print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],151))
+		# print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],201))
+		# print(randomTradeWithExogeneousPrice([b1,b2,s1,s2],225))  # demand=8 and supply=9; competition between a 100 seller and a 200 seller.
 
 		#walrasianEquilibrium.LOG=False
 		#randomTradeWithExogeneousPrice.LOG = False
 		#MUDA.LOG = True
-		#print(MUDA([b1,b2,s1,s2]))
+		# print(MUDA([b1,b2,s1,s2]))
 
 		#VickreyTradeWithExogeneousPrice.LOG = True
-		#print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],51))
-		#print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],101))
-		#print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],151))
-		#print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],201))
-		#print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],225))
+		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],51))
+		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],101))
+		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],151))
+		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],201))
+		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],225))

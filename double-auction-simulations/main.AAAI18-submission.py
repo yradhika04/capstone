@@ -152,15 +152,22 @@ def plotResults(resultsFilename=None, xColumn='Min total traders', numOfBins=10,
 	
 	for field in ['MUDA-lottery', 'MUDA-Vickrey traders', 'MUDA-Vickrey total']:
 		results[field+' ratio'] = results[field+' gain'] / results['Optimal gain']
-		
+
 	if numOfBins:
 		results_bins = results.groupby(pd.cut(results[xColumn],numOfBins)).mean()
+		print('$$$$')
+		print(results_bins["numOfTraders"])
 	else:
 		results_bins = results.groupby(results[xColumn]).mean()
-	
-	results_bins.plot(x=xColumn, y='MUDA-Vickrey total ratio', style=['b^-'], ax=ax, markersize=markerSize)
-	results_bins.plot(x=xColumn, y='MUDA-Vickrey traders ratio', style=['gv-'], ax=ax, markersize=markerSize)
-	results_bins.plot(x=xColumn, y='MUDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
+		print('****')
+		print(results_bins["numOfTraders"])
+
+	# results_bins.plot(x=xColumn, y='MUDA-Vickrey total ratio', style=['b^-'], ax=ax, markersize=markerSize)
+	# results_bins.plot(x=xColumn, y='MUDA-Vickrey traders ratio', style=['gv-'], ax=ax, markersize=markerSize)
+	# results_bins.plot(x=xColumn, y='MUDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
+	results.plot(x=xColumn, y='MUDA-lottery ratio', style=['b^-'], ax=ax, markersize=markerSize)
+	results.plot(x=xColumn, y='MUDA-lottery ratio', style=['gv-'], ax=ax, markersize=markerSize)
+	results.plot(x=xColumn, y='MUDA-lottery ratio', style=['ro-'], ax=ax, markersize=markerSize)
 
 	#plt.legend(loc=0,prop={'size':legendFontSize})
 	ax.legend_.remove()
@@ -215,8 +222,8 @@ def torqSimulation():
 	# 		ax = plt.subplot(2,1,2))
 	# plt.show()
 
-def randomSimulation(numOfAuctions = 100):
-	numOfTraderss = range(2000000, 42000000, 2000000)
+def randomSimulation(numOfAuctions = 10):
+	numOfTraderss = range(200, 1000, 200)
 	minNumOfUnitsPerTrader = 10
 	maxNumOfUnitsPerTraders = [100,1000,10000,1000000,10000000,100000000,100000]
 	meanValue = 500
@@ -316,5 +323,5 @@ def randomSimulation(numOfAuctions = 100):
 
 createResults = False # True # 
 
-torqSimulation()
+# torqSimulation()
 randomSimulation(numOfAuctions = 10)
