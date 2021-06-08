@@ -31,9 +31,9 @@ def calculateWalrasianPrices(filename):
 	results = DataFrame(columns=columns)
 	print("\t{}".format(columns))
 
-	for symbol,date,traders in auctionsBySymbolDate(datasetFilename, combineByOrderDate=False):
+	for symbol,traders in auctionsBySymbol(datasetFilename, combineByOrderDate=False):
 		(equilibriumPrice, numOfBuyers, numOfSellers, sizeOfTrade, gainFromTrade) = walrasianEquilibrium(traders)
-		resultsRow = [symbol,int(date),equilibriumPrice]
+		resultsRow = [symbol,equilibriumPrice]
 		print("\t{}".format(resultsRow))
 		results.loc[len(results)] = resultsRow
 	results.to_csv(pricesFilename)
@@ -60,9 +60,9 @@ def normalizePrices(filename):
 
 ### MAIN PROGRAM ###
 
-filename =  "910121-910121-IBM-SOD" #  "901101-910131-IBM-SOD" #"901101-910131-SOD" #    
+filename = "901101-910131-SOD"  #  "901101-910131-IBM-SOD" # #    "910121-910121-IBM-SOD"
 calculateWalrasianPrices(filename)
 normalizePrices(filename)
 
-for (symbol,date,traders) in auctionsBySymbolDate("datasets/"+filename+"-NORM.CSV"):
-	print(traders)
+for (symbol,traders) in auctionsBySymbol("datasets/"+filename+"-NORM.CSV"):
+	print("Traders",traders)

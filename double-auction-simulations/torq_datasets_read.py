@@ -42,7 +42,7 @@ def _tradersByIndices(dataset:DataFrame, indices:list, combineByOrderDate=False)
 			trader = Trader(False, bids) # add a seller
 			traders.append(trader)
 	else:
-		print ("\tadditive!")
+		# print ("\tadditive!")
 		traders = []
 		for i in indices:
 			bidRow = dataset.loc[i]

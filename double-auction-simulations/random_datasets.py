@@ -80,7 +80,7 @@ if __name__ == "__main__":
 	# print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True))
 	# print(randomValuations(minNumOfUnits=2, maxNumOfUnits=10,      meanValue=500, maxNoiseSize=100, round=True, index=99))
 
-	print("\nrandomAuction demo:")
+	# print("\nrandomAuction demo:")
 	# print(randomAuction(numOfTraders=5, minNumOfUnitsPerTrader=10, maxNumOfUnitsPerTrader=30, meanValue=100, maxNoiseSize=40, fixedNumOfVirtualTraders=False))
 	# print(randomAuction(500, 100, 300,   100, 40,fixedNumOfVirtualTraders=True))
 	# print(randomAuction(5000, 1000, 3000, 100, 40,fixedNumOfVirtualTraders=True))

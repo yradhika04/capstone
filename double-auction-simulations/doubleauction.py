@@ -13,6 +13,7 @@ import math
 import random
 from collections import defaultdict
 from traders import *
+import time
 
 
 def walrasianEquilibrium(traders:list):
@@ -93,11 +94,17 @@ def randomPartition(theList:list)->(list,list):
 			right.append(item)
 	return (left,right)
 
-
+def store_index(arr:list,type,index:dict(),counter) -> (list):
+	for i in arr:
+		if(type not in index.keys()):
+			index[type] = [(i[2]+counter,i[0])]
+		else:
+			index[type].append((i[2]+counter,i[0]))
+	return index
 
 ############## RANDOM TRADE #################	
 
-def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
+def randomTradeWithExogeneousPrice(traders:list, price:float,counter)->tuple:
 	"""
 	Calculates the trade in the given market, when the price is determined exogeneously.
 	Excess demand/supply is settled using a random permutation.
@@ -123,7 +130,6 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 	>>> randomTradeWithExogeneousPrice([b1,b2,s1,s2],201)
 	(8, 1100)
 	"""
-
 	activeBuyers =  [t.abovePrice(price) for t in traders if t.isBuyer]
 	random.shuffle(activeBuyers)
 	activeSellers = [t.belowPrice(price) for t in traders if not t.isBuyer]
@@ -133,7 +139,6 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 	virtualSellers = virtualTradersWithIndices(activeSellers)
 	totalDemand = sum([v[0] for v in virtualBuyers])
 	totalSupply = sum([v[0] for v in virtualSellers])
-
 	if randomTradeWithExogeneousPrice.LOG:
 		print("totalDemand:", totalDemand, "activeBuyers:",activeBuyers)
 		print("totalSupply:", totalSupply, "activeSellers:",activeSellers)
@@ -143,6 +148,9 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		buyersGain = sum([v[0]*(v[1]-price) for v in virtualBuyers])
 		candidates = virtualSellers
 		(winners,losers) = winningAndLosingTraders(candidates, totalUnitsTraded)
+		# print("Winners Losers",winners,losers)
+		res = store_index(winners,"S",{},counter)
+		res = store_index(virtualBuyers,"B",res,counter)
 		sellersGain = sum([v[0]*(price-v[1]) for v in winners])
 		totalGain = buyersGain+sellersGain
 	else:    # sellers are short
@@ -150,11 +158,13 @@ def randomTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		sellersGain = sum([v[0]*(price-v[1]) for v in virtualSellers])
 		candidates = virtualBuyers
 		(winners,losers) = winningAndLosingTraders(candidates, totalUnitsTraded)
+		# print("Winners Losers",winners,losers)
+		res = store_index(winners,"B",{},counter)
+		res = store_index(virtualSellers,"S",res,counter)
 		buyersGain = sum([v[0]*(v[1]-price) for v in winners])
 		totalGain = buyersGain+sellersGain
-
-	return (totalUnitsTraded, totalGain)
-randomTradeWithExogeneousPrice.LOG = True
+	return (totalUnitsTraded, totalGain,res)
+randomTradeWithExogeneousPrice.LOG = False
 
 
 
@@ -192,7 +202,7 @@ def winnerPayment(winnerIndex:int, winnerUnits:int, losers:list)->float:
 
 
 RESERVE_AGENT = -1
-def VickreyTradeWithExogeneousPrice(traders:list, price:float)->tuple:
+def VickreyTradeWithExogeneousPrice(traders:list, price:float,counter)->tuple:
 	"""
 	Calculates the trade in the given market, when the price is determined exogeneously.
 	Excess demand/supply is settled using a Vickrey auction.
@@ -234,11 +244,13 @@ def VickreyTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		(winners,losers) = winningAndLosingTraders(virtualSellers, totalUnitsTraded)
 		unitsPerWinner = unitsByIndex(winners)
 		losers.append( (999999999,price,RESERVE_AGENT) )  # add dummies in reserve price
+		res = store_index(winners,"S",{},counter)
+		res =store_index(virtualBuyers,"B",res,counter)
 		if (VickreyTradeWithExogeneousPrice.LOG):
 			print("\twinners",winners)
 			print("\tlosers",losers)
-			print("\tunitsPerWinner",unitsPerWinner)
-			print("\tbuyers gain",buyersGain)
+			# print("\tunitsPerWinner",unitsPerWinner)
+			# print("\tbuyers gain",buyersGain)
 		managerGain = 0
 		for winnerIndex,winnerUnits in unitsPerWinner.items():  # calculate the payment per winners
 			payment = winnerPayment(winnerIndex,winnerUnits,losers)
@@ -254,11 +266,13 @@ def VickreyTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		(winners,losers) = winningAndLosingTraders(virtualBuyers, totalUnitsTraded)
 		unitsPerWinner = unitsByIndex(winners)
 		losers.append( (999999999,price,RESERVE_AGENT) )  # add dummies in reserve price
+		res = store_index(winners,"B",{},counter)
+		res = store_index(virtualSellers,"S",res,counter)
 		if (VickreyTradeWithExogeneousPrice.LOG):
 			print("\twinners",winners)
 			print("\tlosers",losers)
-			print("\tunitsPerWinner",unitsPerWinner)
-			print("\tsellers gain",sellersGain)
+			# print("\tunitsPerWinner",unitsPerWinner)
+			# print("\tsellers gain",sellersGain)
 		managerGain = 0
 		for winnerIndex,winnerUnits in unitsPerWinner.items():  # calculate the payment per winners
 			payment = winnerPayment(winnerIndex,winnerUnits,losers)
@@ -266,14 +280,15 @@ def VickreyTradeWithExogeneousPrice(traders:list, price:float)->tuple:
 		totalGain = sellersGain + sum([v[0]*(v[1]-price) for v in winners])
 
 	tradersGain = totalGain - managerGain
-	return (totalUnitsTraded, tradersGain, managerGain, totalGain)
-VickreyTradeWithExogeneousPrice.LOG = True
+
+	return (totalUnitsTraded, tradersGain, managerGain, totalGain,res)
+VickreyTradeWithExogeneousPrice.LOG = False
 
 
 
 #### Implementation of mechanisms
 
-def MUDA(traders:list, Lottery=False, Vickrey=True) -> (int,float):
+def MUDA(traders:list, Lottery=True, Vickrey=True) -> (int,float):
 	"""
 	Run the Multi-Item-Double-Auction mechanism.
 	INPUT: a list of Trader objects, each of which represents valuations with decreasing marginal returns.
@@ -291,25 +306,48 @@ def MUDA(traders:list, Lottery=False, Vickrey=True) -> (int,float):
 	(4, 900, 900, 4, 750, 900)
 	"""
 	(tradersLeft,tradersRight) = randomPartition(traders)
+	print(len(tradersLeft),len(tradersRight))
 	priceLeft  = walrasianEquilibrium(tradersLeft)[0]
 	priceRight = walrasianEquilibrium(tradersRight)[0]
 	result = ()
 	if Lottery:
+		start_time = time.time()
 		if MUDA.LOG:
 			print ("Left sub-market: pR=", priceRight, "traders=",tradersLeft)
-		(sizeLeft, gainLeft) = randomTradeWithExogeneousPrice(tradersLeft, priceRight)
+		(sizeLeft, gainLeft,res1) = randomTradeWithExogeneousPrice(tradersLeft, priceRight,counter = 0)
 		if MUDA.LOG:
 			print ("Right sub-market: pL=", priceLeft, "traders=",tradersRight)
-		(sizeRight, gainRight) = randomTradeWithExogeneousPrice(tradersRight, priceLeft)
-		result += (sizeRight+sizeLeft, gainRight+gainLeft, gainRight+gainLeft)
+		(sizeRight, gainRight,res2) = randomTradeWithExogeneousPrice(tradersRight, priceLeft,counter = len(tradersLeft))
+		end_time = time.time()
+		total_time = end_time - start_time
+		final_res = {"B":[],"S":[]}
+		for d in (res1,res2):
+			for key,value in d.items():
+				if(key in final_res.keys()):
+					final_res[key]+=value
+				else:
+					final_res[key] = value
+		# print("Values",final_res,list(final_res.values()),final_res.values())
+		result += (sizeRight+sizeLeft, gainRight+gainLeft, gainRight+gainLeft,final_res,total_time)
 	if Vickrey:
-		(sizeLeft, tradersGainLeft, managerGainLeft, totalGainLeft) = VickreyTradeWithExogeneousPrice(tradersLeft, priceRight)
-		(sizeRight, tradersGainRight, managerGainRight, totalGainRight) = VickreyTradeWithExogeneousPrice(tradersRight, priceLeft)
-		result += (sizeRight+sizeLeft, tradersGainRight+tradersGainLeft, totalGainRight+totalGainLeft)
+		start_time2 = time.time()
+		(sizeLeft, tradersGainLeft, managerGainLeft, totalGainLeft,res1) = VickreyTradeWithExogeneousPrice(tradersLeft, priceRight,counter = 0)
+		(sizeRight, tradersGainRight, managerGainRight, totalGainRight,res2) = VickreyTradeWithExogeneousPrice(tradersRight, priceLeft,counter = len(tradersLeft))
+		final_res2 = {"B":[],"S":[]}
+		for d in (res1,res2):
+			for key,value in d.items():
+				if(key in final_res2.keys()):
+					final_res2[key]+=value
+				else:
+					final_res2[key] = value
+		end_time2 = time.time()
+		total_time = end_time2 - start_time2
+		result += (sizeRight+sizeLeft, tradersGainRight+tradersGainLeft, totalGainRight+totalGainLeft,final_res2,total_time)
+		# print("Values 2",final_res,list(final_res2.values()),final_res2.values())
 	if MUDA.LOG:
 		print(result)
 	return result
-MUDA.LOG = True
+MUDA.LOG = False
 
 def WALRAS(traders:list) -> (int, int, int, float):
 	"""
@@ -345,8 +383,8 @@ if __name__ == "__main__":
 
 		#walrasianEquilibrium.LOG=False
 		#randomTradeWithExogeneousPrice.LOG = False
-		#MUDA.LOG = True
-		# print(MUDA([b1,b2,s1,s2]))
+		# MUDA.LOG = True
+		print(MUDA([b1,b2,s1,s2]))
 
 		#VickreyTradeWithExogeneousPrice.LOG = True
 		# print(VickreyTradeWithExogeneousPrice([b1,b2,s1,s2],51))
